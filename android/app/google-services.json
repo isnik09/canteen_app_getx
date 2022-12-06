@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "594337967011",
+    "project_id": "canteen-appointment-booking",
+    "storage_bucket": "canteen-appointment-booking.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:594337967011:android:de90b870a32fbed85fc816",
+        "android_client_info": {
+          "package_name": "com.ew.canteen_app_getx"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "594337967011-2iugh3cr6leigbbpnkgja05giqcrbgae.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQCGmL1vn4-pvYllqCqHuBJoOxnYoiAH0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "594337967011-2iugh3cr6leigbbpnkgja05giqcrbgae.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
