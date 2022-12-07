@@ -2,6 +2,7 @@ import 'package:canteen_app_getx/screens/login_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+// import 'package:login_form/screens/mainscreen.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -9,84 +10,82 @@ class Home extends StatefulWidget {
 }
 
 class _HomeState extends State<Home> {
-  String? uid;
-  String? userName;
-  String? userRank;
-  String? canteenCard;
-  String? mobileNumber;
-
+  late String userRank;
+  late String userName;
+  late String userCanteenCard;
+  late String userPhoneNumber;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Home'),
+        backgroundColor: Colors.deepPurple,
         actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: () async {
-              await FirebaseAuth.instance.signOut();
-              Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => LoginScreen()),
-                  (route) => false);
-            },
-          )
+          ElevatedButton.icon(
+              onPressed: () {
+                FirebaseAuth.instance.signOut();
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => LoginScreen()));
+              },
+              icon: Icon(
+                Icons.person_outline,
+                color: Colors.white,
+              ),
+              label: Text(
+                'Log out',
+                style:
+                    TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              ))
         ],
       ),
       body: Center(
-        child: Column(
-          children: [
-            Container(
-              child: FutureBuilder(
-                future: _fetch(),
-                // initialData: InitialData,
-                builder: (BuildContext context, AsyncSnapshot snapshot) {
-                  if (snapshot.connectionState != ConnectionState.done) {
-                    return const Text("Wait loading data....");
-                  }
-                  return Column(
-                    children: [
-                      Text(
-                        'Your UID ${uid}',
-                      ),
-                      Text(
-                        'Your Name ${userName}',
-                      ),
-                      Text(
-                        'Your Rank ${userRank}',
-                      ),
-                      Text(
-                        'Your Mobile number ${mobileNumber}',
-                      ),
-                      Text(
-                        'Your Canteen Card ${canteenCard}',
-                      ),
-                    ],
-                  );
-                },
+        child: FutureBuilder(
+          future: _fetch(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState != ConnectionState.done)
+              return Text("Loading data...Please wait");
+            return Center(
+              child: Column(
+                children: [
+                  Text("Hello ${userName}"),
+                  Text("Canteen card is  ${userCanteenCard}"),
+                  Text("Phone number is  ${userPhoneNumber}"),
+                  Text("You're ${userRank}"),
+                  ElevatedButton(
+                    onPressed: () {
+                      print(FirebaseAuth.instance.currentUser!.isAnonymous);
+                    },
+                    child: Text('check'),
+                  )
+                ],
               ),
-            ),
-          ],
+            );
+          },
         ),
       ),
     );
   }
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    uid = FirebaseAuth.instance.currentUser!.uid;
-  }
-
   _fetch() async {
-    FirebaseFirestore.instance.collection('users').doc(uid).get().then(
-          (ds) => {
-            userName = ds['name'],
-            canteenCard = ds['canteen-card-number'],
-            mobileNumber = ds['phone-number'],
-            userRank = ds['rank']
-          },
-        );
+    final firebaseUser = await FirebaseAuth.instance.currentUser!;
+
+    if (firebaseUser != null) {
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(firebaseUser.uid)
+          .get()
+          .then((ds) {
+        // canteen-card-number
+        // name
+        // phone-number
+        userRank = ds['rank'];
+        userName = ds['name'];
+        userCanteenCard = ds['canteen-card-number'];
+        userPhoneNumber = ds['phone-number'];
+
+        ;
+      }).catchError((e) {
+        print(e);
+      });
+    }
   }
 }

@@ -1,20 +1,17 @@
-// ignore_for_file: avoid_print
+import 'package:canteen_app_getx/screens/login_screen.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:canteen_app_getx/screens/home.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
+import 'reg_screen.dart';
 
 class OTPScreen extends StatefulWidget {
   final String phone;
-  final String userName;
-  final String canteenCard;
-  final String userRank;
 
   // ignore: prefer_const_constructors_in_immutables
-  OTPScreen(this.phone, this.userName, this.canteenCard, this.userRank,
-      {super.key});
+  OTPScreen(this.phone, {super.key});
   @override
   // ignore: library_private_types_in_public_api
   _OTPScreenState createState() => _OTPScreenState();
@@ -37,6 +34,7 @@ class _OTPScreenState extends State<OTPScreen> {
       borderRadius: BorderRadius.circular(20),
     ),
   );
+
   // some
   @override
   Widget build(BuildContext context) {
@@ -45,53 +43,62 @@ class _OTPScreenState extends State<OTPScreen> {
       appBar: AppBar(
         title: const Text('OTP Verification'),
       ),
-      body: Column(
-        children: [
-          Text(widget.phone),
-          Text(widget.userName),
-          Text(widget.userRank),
-          Text(widget.canteenCard),
-          Container(
-            margin: const EdgeInsets.only(top: 40),
-            child: Center(
-              child: Text(
-                'Verify ${widget.phone}',
-                style:
-                    const TextStyle(fontWeight: FontWeight.bold, fontSize: 26),
+      body: Center(
+        child: Column(
+          children: [
+            Text(widget.phone),
+            Container(
+              child: Center(
+                child: Text(
+                  'OTP',
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, fontSize: 26),
+                ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(30.0),
-            child: Pinput(
-              length: 6,
-              defaultPinTheme: defaultPinTheme,
-              controller: _pinPutController,
-              pinAnimationType: PinAnimationType.fade,
-              onSubmitted: (pin) async {
-                try {
-                  await FirebaseAuth.instance
-                      .signInWithCredential(PhoneAuthProvider.credential(
-                          verificationId: _verificationCode!, smsCode: pin))
-                      .then((value) async {
-                    if (value.user != null) {
-                      Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(builder: (context) => Home()),
-                          (route) => false);
-                    }
-                  });
-                } catch (e) {
-                  ScaffoldMessenger.of(context)
-                      .showSnackBar(SnackBar(content: Text(e.toString())));
-                }
-                addUserDetails(widget.phone, widget.userName,
-                    widget.canteenCard, widget.userRank);
-                print("DATA SENT");
-              },
+            Text('An OTP has been sent to your mobile number\n${widget.phone}'),
+            Padding(
+              padding: const EdgeInsets.all(30.0),
+              child: Pinput(
+                length: 6,
+                defaultPinTheme: defaultPinTheme,
+                controller: _pinPutController,
+                pinAnimationType: PinAnimationType.fade,
+                onSubmitted: (pin) async {
+                  try {
+                    await FirebaseAuth.instance
+                        .signInWithCredential(PhoneAuthProvider.credential(
+                            verificationId: _verificationCode!, smsCode: pin))
+                        .then((value) async {
+                      if (value.user != null) {
+                        Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) =>
+                                    RegistrationScreen(widget.phone)),
+                            (route) => false);
+                      }
+                    });
+                  } catch (e) {
+                    ScaffoldMessenger.of(context)
+                        .showSnackBar(SnackBar(content: Text(e.toString())));
+                  }
+                },
+              ),
             ),
-          )
-        ],
+            Text('Didn’t received the code? Resend'),
+            Text('or'),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => LoginScreen(),
+                    ),
+                  );
+                },
+                child: Text("Change Phone Number"))
+          ],
+        ),
       ),
     );
   }
@@ -107,7 +114,8 @@ class _OTPScreenState extends State<OTPScreen> {
             if (value.user != null) {
               Navigator.pushAndRemoveUntil(
                   context,
-                  MaterialPageRoute(builder: (context) => Home()),
+                  MaterialPageRoute(
+                      builder: (context) => RegistrationScreen(widget.phone)),
                   (route) => false);
             }
           });
@@ -126,21 +134,6 @@ class _OTPScreenState extends State<OTPScreen> {
           });
         },
         timeout: const Duration(seconds: 120));
-  }
-
-  Future addUserDetails(String name, String phoneNumber,
-      String canteenCardNumber, String rank) async {
-    await FirebaseFirestore.instance
-        .collection('users')
-        .doc(FirebaseAuth.instance.currentUser!.uid)
-        .set(
-      {
-        'name': name,
-        'phone-number': phoneNumber,
-        'canteen-card-number': canteenCardNumber,
-        'rank': rank,
-      },
-    );
   }
 
   @override

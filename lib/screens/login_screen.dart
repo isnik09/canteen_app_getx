@@ -1,11 +1,21 @@
+import 'package:canteen_app_getx/screens/opt.dart';
 import 'package:canteen_app_getx/screens/reg_screen.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../constants/theme_data.dart';
 import 'onboarding.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
+
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  // @override
+  final _phoneNumberController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +31,8 @@ class LoginScreen extends StatelessWidget {
                   style: TextScheme.largeText,
                 ),
                 const Text(
-                  "Login with your registered mobile \n number",
+                  // "Login with your registered mobile \n number",
+                  'Hello there...\nWelcome to canteen app\nWhy to stand in long lines where you\ncan book your appointment. ',
                   style: TextScheme.smallText,
                 ),
                 Padding(
@@ -41,22 +52,19 @@ class LoginScreen extends StatelessWidget {
                       ),
                       hintText: "Enter Your Phone Number",
                     ),
-                    onChanged: (value) {
-                      // phoneNumber = value;
-                    },
+                    controller: _phoneNumberController,
                   ),
                 ),
                 ElevatedButton(
                   child: const Text("Continue"),
                   onPressed: () {
-                    Get.to(const Onboarding());
-                  },
-                ),
-                const Text("Don’t have registered yet?"),
-                ElevatedButton(
-                  child: const Text("Register here"),
-                  onPressed: () {
-                    Get.to(const RegistrationScreen());
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => OTPScreen(
+                          _phoneNumberController.text,
+                        ),
+                      ),
+                    );
                   },
                 ),
               ],
